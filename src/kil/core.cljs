@@ -5,37 +5,48 @@
 
 (enable-console-print!)
 
-(def w 400)
+(def my-text (atom ""))
+
+(def w 800)
 (def h 400)
 
 (defn setup []
-  {:t 1})
+  {})
 
-(defn update [state]
-  (update-in state [:t] inc))
+(defn update-state [state]
+  ())
 
 (defn draw [state]
   (q/background 255)
   (q/fill 0)
-  (q/ellipse (rem (:t state) w) 46 55 55))
+  (q/text-font "Fira Sans" "32")
+  (q/text @my-text 5 50))
 
 (q/defsketch foo
   :setup  setup
-  :update update
+  :update update-state
   :draw   draw
   :host "foo"
   :no-start true
   :middleware [m/fun-mode]
   :size [w h])
 
+(defn atom-input [value]
+  [:input {:type "text"
+           :value @my-text
+           :on-change #(reset! my-text (-> % .-target .-value))}])
+
 (defn hello-world []
   (reagent/create-class
     {:reagent-render (fn [] [:canvas#foo {:width w :height h}])
      :component-did-mount foo}))
 
+(defn base []
+  [:div [hello-world]
+   [:p {:style {:padding 0}}[atom-input]]])
+
 (reagent/render-component
-  [hello-world]
+  [base]
   (. js/document (getElementById "app")))
 
 (defn on-js-reload [])
-
